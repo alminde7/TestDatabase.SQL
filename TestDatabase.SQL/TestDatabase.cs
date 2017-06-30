@@ -38,6 +38,10 @@ namespace TestDatabase.SQL
             }
         }
 
+        /// <summary>
+        /// Runs SQL migration scripts on database. A path to the folder containing the SQL scripts must be provided. 
+        /// </summary>
+        /// <param name="pathToMigrationScripts"></param>
         public void Migrate(string pathToMigrationScripts)
         {
             DbUp.DeployChanges.To
