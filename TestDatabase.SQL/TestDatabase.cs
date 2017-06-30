@@ -65,7 +65,7 @@ namespace TestDatabase.SQL
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText =
-                        $"IF EXIST(select * from sys.databases where name='{DbName}') DROP DATABASE {DbName}";
+                        $"IF EXISTS(select * from sys.databases where name='{DbName}') DROP DATABASE {DbName}";
 
                     command.ExecuteNonQuery();
                 }
