@@ -5,13 +5,13 @@ namespace TestDatabase.SQL
 {
     public class TestDatabase : IDisposable
     {
-        private readonly string _dbName;
-        private readonly string _connectionstring;
+        public readonly string DbName;
+        public readonly string Connectionstring;
 
         public TestDatabase(string dbName, string connectionstring)
         {
-            _dbName = dbName + "_Test_" + Guid.NewGuid().ToString("N");
-            _connectionstring = connectionstring;
+            DbName = dbName + "_Test_" + Guid.NewGuid().ToString("N");
+            Connectionstring = connectionstring;
         }
 
         /// <summary>
@@ -19,20 +19,20 @@ namespace TestDatabase.SQL
         /// </summary>
         public void CreateDatabase()
         {
-            using (SqlConnection connection = new SqlConnection(_connectionstring))
+            using (SqlConnection connection = new SqlConnection(Connectionstring))
             {
                 connection.Open();
 
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"CREATE DATABASE {_dbName}";
+                    command.CommandText = $"CREATE DATABASE {DbName}";
                     command.ExecuteNonQuery();
                 }
 
                 // Due to https://dba.stackexchange.com/questions/58137/db-owner-unable-to-drop-database-error-615-sql-server
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"ALTER DATABASE [{_dbName}] SET AUTO_CLOSE OFF";
+                    command.CommandText = $"ALTER DATABASE [{DbName}] SET AUTO_CLOSE OFF";
                     command.ExecuteNonQuery();
                 }
             }
@@ -45,7 +45,7 @@ namespace TestDatabase.SQL
         public void Migrate(string pathToMigrationScripts)
         {
             DbUp.DeployChanges.To
-                .SqlDatabase(_connectionstring)
+                .SqlDatabase(Connectionstring)
                 .WithScriptsFromFileSystem(pathToMigrationScripts)
                 .LogToConsole()
                 .Build();
@@ -58,14 +58,14 @@ namespace TestDatabase.SQL
         {
             SqlConnection.ClearAllPools();
 
-            using (SqlConnection connection = new SqlConnection(_connectionstring))
+            using (SqlConnection connection = new SqlConnection(Connectionstring))
             {
                 connection.Open();
 
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText =
-                        $"IF EXIST(select * from sys.databases where name='{_dbName}') DROP DATABASE {_dbName}";
+                        $"IF EXIST(select * from sys.databases where name='{DbName}') DROP DATABASE {DbName}";
 
                     command.ExecuteNonQuery();
                 }
