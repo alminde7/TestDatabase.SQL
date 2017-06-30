@@ -1,50 +1,76 @@
 ﻿using System;
 using System.Data.SqlClient;
 
-namespace Database.SQL.Test
+namespace TestDatabase.SQL
 {
     public class TestDatabase : IDisposable
     {
         private readonly string _dbName;
-        private readonly string _connectionId;
+        private readonly string _connectionstring;
 
-        public TestDatabase(string dbName, string connectionId)
+        public TestDatabase(string dbName, string connectionstring)
         {
             _dbName = dbName + "_Test_" + Guid.NewGuid().ToString("N");
-            _connectionId = connectionId;
+            _connectionstring = connectionstring;
         }
 
+        /// <summary>
+        /// Creates a testdatabase
+        /// </summary>
         public void CreateDatabase()
         {
-            using (SqlConnection connection = new SqlConnection(_connectionId))
+            using (SqlConnection connection = new SqlConnection(_connectionstring))
             {
                 connection.Open();
 
-                SqlCommand command = new SqlCommand($"CREATE DATABASE {_dbName}");
-                command.ExecuteNonQuery();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = $"CREATE DATABASE {_dbName}";
+                    command.ExecuteNonQuery();
+                }
 
-                connection.Close();
+                // Due to https://dba.stackexchange.com/questions/58137/db-owner-unable-to-drop-database-error-615-sql-server
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = $"ALTER DATABASE [{_dbName}] SET AUTO_CLOSE OFF";
+                    command.ExecuteNonQuery();
+                }
             }
         }
 
-        public void Migrate()
+        public void Migrate(string pathToMigrationScripts)
         {
-
+            DbUp.DeployChanges.To
+                .SqlDatabase(_connectionstring)
+                .WithScriptsFromFileSystem(pathToMigrationScripts)
+                .LogToConsole()
+                .Build();
         }
 
+        /// <summary>
+        /// Deletes the testdatabase
+        /// </summary>
         public void DeleteDatabase()
         {
-            using (SqlConnection connection = new SqlConnection(_connectionId))
+            SqlConnection.ClearAllPools();
+
+            using (SqlConnection connection = new SqlConnection(_connectionstring))
             {
                 connection.Open();
 
-                SqlCommand command = new SqlCommand($"DROP DATABASE {_dbName}");
-                command.ExecuteNonQuery();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText =
+                        $"IF EXIST(select * from sys.databases where name='{_dbName}') DROP DATABASE {_dbName}";
 
-                connection.Close();
+                    command.ExecuteNonQuery();
+                }
             }
         }
 
+        /// <summary>
+        /// Deletes the testdatabase
+        /// </summary>
         public void Dispose()
         {
             DeleteDatabase();
