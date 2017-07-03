@@ -1,7 +1,4 @@
-﻿using System;
-using System.Data.SqlClient;
-using System.IO;
-using System.Reflection;
+﻿using System.Data.SqlClient;
 using NUnit.Framework;
 
 namespace TestDatabase.SQL.Test.Integration
