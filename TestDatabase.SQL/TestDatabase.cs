@@ -7,11 +7,13 @@ namespace TestDatabase.SQL
     {
         public readonly string DbName;
         public readonly string Connectionstring;
+        public readonly string ConnectionstringWithDb;
 
         public TestDatabase(string dbName, string connectionstring)
         {
             DbName = dbName + "_Test_" + Guid.NewGuid().ToString("N");
             Connectionstring = connectionstring;
+            ConnectionstringWithDb = CreateConnectionStringWithDatabase();
         }
 
         /// <summary>
@@ -42,13 +44,15 @@ namespace TestDatabase.SQL
         /// Runs SQL migration scripts on database. A path to the folder containing the SQL scripts must be provided. 
         /// </summary>
         /// <param name="pathToMigrationScripts"></param>
-        public void Migrate(string pathToMigrationScripts)
+        public bool Migrate(string pathToMigrationScripts)
         {
-            DbUp.DeployChanges.To
-                .SqlDatabase(Connectionstring)
+            var sdf = DbUp.DeployChanges.To
+                .SqlDatabase(ConnectionstringWithDb)
                 .WithScriptsFromFileSystem(pathToMigrationScripts)
                 .LogToConsole()
                 .Build();
+
+            return sdf.PerformUpgrade().Successful;
         }
 
         /// <summary>
@@ -78,6 +82,16 @@ namespace TestDatabase.SQL
         public void Dispose()
         {
             DeleteDatabase();
+        }
+
+        private string CreateConnectionStringWithDatabase()
+        {
+            string connectionstringDatabase = "Database=" + DbName + ";";
+
+            if (Connectionstring.EndsWith(";"))
+                return Connectionstring + connectionstringDatabase;
+            else
+                return Connectionstring + ";" + connectionstringDatabase;
         }
     }
 }

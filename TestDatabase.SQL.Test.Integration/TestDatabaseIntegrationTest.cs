@@ -1,4 +1,7 @@
-﻿using System.Data.SqlClient;
+﻿using System;
+using System.Data.SqlClient;
+using System.IO;
+using System.Reflection;
 using NUnit.Framework;
 
 namespace TestDatabase.SQL.Test.Integration
@@ -27,11 +30,9 @@ namespace TestDatabase.SQL.Test.Integration
             using (SqlConnection conn = new SqlConnection(Config.ConnectionString))
             {
                 conn.Open();
-
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = $"SELECT name FROM sys.databases WHERE Name = '{testDb.DbName}'";
-
                     result = cmd.ExecuteScalar().ToString();
                 }
             }
@@ -39,6 +40,20 @@ namespace TestDatabase.SQL.Test.Integration
             Assert.That(testDb.DbName, Is.EqualTo(result));
 
             testDb.DeleteDatabase();
+        }
+
+        [Test]
+        public void Migrate_MigrateCreateTablesSqlScript_TableHasBeenCreated()
+        {
+            var testDb = new TestDatabase(dbName, Config.ConnectionString);
+            testDb.CreateDatabase();
+            testDb.Migrate(Config.PathToMigrationScripts);
+        }
+
+        [Test]
+        public void CreateDatabase_SupplyInvalidConnectionString_ThrowsException()
+        {
+            
         }
 
     }
