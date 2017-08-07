@@ -19,7 +19,7 @@ namespace TestDatabase.SQL
         /// <summary>
         /// Creates a testdatabase
         /// </summary>
-        public void CreateDatabase()
+        public void Create()
         {
             using (SqlConnection connection = new SqlConnection(Connectionstring))
             {
@@ -58,7 +58,7 @@ namespace TestDatabase.SQL
         /// <summary>
         /// Deletes the testdatabase
         /// </summary>
-        public void DeleteDatabase()
+        public void Delete()
         {
             SqlConnection.ClearAllPools();
 
@@ -81,7 +81,7 @@ namespace TestDatabase.SQL
         /// </summary>
         public void Dispose()
         {
-            DeleteDatabase();
+            Delete();
         }
 
         private string CreateConnectionStringWithDatabase()
