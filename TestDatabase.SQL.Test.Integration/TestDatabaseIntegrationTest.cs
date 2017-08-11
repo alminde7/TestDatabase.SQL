@@ -54,9 +54,24 @@ namespace TestDatabase.SQL.Test.Integration
         [Test]
         public void Migrate_MigrateCreateTablesSqlScript_TableHasBeenCreated()
         {
+            string result;
             var testDb = new TestDatabase(dbName, Config.ConnectionString);
             testDb.Create();
             testDb.Migrate(Config.PathToMigrationScripts);
+
+            using (SqlConnection conn = new SqlConnection(Config.ConnectionString))
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    //Returns the number of columns in table. 
+                    cmd.CommandText = $"select count(*) as IsExists from {testDb.DbName}.information_schema.columns " +
+                                      $"where table_name = 'Users'";
+                    result = cmd.ExecuteScalar().ToString();
+                }
+            }
+            
+            Assert.That(result, Is.EqualTo("3"));
 
             testDb.Delete();
         }
@@ -75,7 +90,29 @@ namespace TestDatabase.SQL.Test.Integration
         [Test]
         public void Migrate_MigrateTwoScripts_ScriptsHasBeenExecutedInOrderOfName()
         {
+            //Arrange
+            string result;
+            var testDb = new TestDatabase(dbName, Config.ConnectionString);
+            testDb.Create();
+            //Act
+            testDb.Migrate(Config.PathToMultipleScripts);
+
+            //Assert
+            using (SqlConnection conn = new SqlConnection(Config.ConnectionString))
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = $"select count(*) as IsExists from {testDb.DbName}.information_schema.columns " +
+                                      $"where table_name = 'Users' and column_name = 'DateOfBirth'";
+                    result = cmd.ExecuteScalar().ToString();
+                }
+            }
+
+            // "0" = Not found; "1" = found column
+            Assert.That(result, Is.EqualTo("1"));
             
+            testDb.Delete();
         }
 
         [Test]
@@ -111,7 +148,7 @@ namespace TestDatabase.SQL.Test.Integration
         [Test]
         public void Delete_DeleteDatabaseIsCalledTwice_DatabaseIsDeleted()
         {
-            string result;
+            string result = string.Empty;
             bool throwsException = false;
 
             var testDb = new TestDatabase(dbName, Config.ConnectionString);
@@ -142,9 +179,9 @@ namespace TestDatabase.SQL.Test.Integration
         [Test]
         public void Dispose_CreateDatabaseWithUsingStatement_DatabaseHasBeenDeletedWhenUsingStatementIsDone()
         {
-            string result;
+            string result = string.Empty;
             bool throwsException = false;
-            string testDbName;
+            string testDbName = string.Empty;
 
             using (var testDb = new TestDatabase(dbName, Config.ConnectionString))
             {

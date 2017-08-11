@@ -101,12 +101,5 @@ namespace TestDatabase.SQL
             else
                 return Connectionstring + ";" + connectionstringDatabase;
         }
-
-        private bool ValidateSqlScript()
-        {
-            // https://stackoverflow.com/questions/3276035/code-to-validate-sql-scripts
-
-            return true;
-        }
     }
 }
