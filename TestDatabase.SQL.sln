@@ -1,11 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.12
+VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestDatabase.SQL", "TestDatabase.SQL\TestDatabase.SQL.csproj", "{FE261C73-6F3C-47EB-BB67-E04C6E21ECC7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestDatabase.SQL.Test.Integration", "TestDatabase.SQL.Test.Integration\TestDatabase.SQL.Test.Integration.csproj", "{0A62ECE4-3071-4251-A971-BD4BBEB2A3EA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EA7EA3A5-38D8-4DA2-907D-F4086333E01F}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
