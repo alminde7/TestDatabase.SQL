@@ -52,7 +52,15 @@ namespace TestDatabase.SQL
                 .LogToConsole()
                 .Build();
 
-            return sdf.PerformUpgrade().Successful;
+
+            var result = sdf.PerformUpgrade();
+
+            if (result.Successful)
+                return true;
+            else
+            {
+                throw result.Error;
+            }
         }
 
         /// <summary>

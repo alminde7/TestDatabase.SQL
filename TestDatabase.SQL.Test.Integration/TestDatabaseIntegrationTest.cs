@@ -1,4 +1,5 @@
-﻿using System.Data.SqlClient;
+﻿using System;
+using System.Data.SqlClient;
 using NUnit.Framework;
 
 namespace TestDatabase.SQL.Test.Integration
@@ -7,6 +8,7 @@ namespace TestDatabase.SQL.Test.Integration
     public class TestDatabaseIntegrationTest
     {
         private string dbName = "Test";
+
         [Test]
         public void Constructor_CreateNewInstanceOfObject_DbNameAndConnectionStringHasBeenSet()
         {
@@ -40,8 +42,12 @@ namespace TestDatabase.SQL.Test.Integration
         }
 
         [Test]
-        public void Create_SupplyInvalidConnectionString_ThrowsException()
+        public void Create_SupplyInvalidConnectionString_ThrowsArgumentException()
         {
+            var connectionString = "This_Is_An_Invalid_Connection_String";
+            var testDb = new TestDatabase(dbName, connectionString);
+
+            Assert.Throws<ArgumentException>(() => testDb.Create());
 
         }
 
@@ -51,31 +57,119 @@ namespace TestDatabase.SQL.Test.Integration
             var testDb = new TestDatabase(dbName, Config.ConnectionString);
             testDb.Create();
             testDb.Migrate(Config.PathToMigrationScripts);
+
+            testDb.Delete();
         }
 
         [Test]
-        public void Migrate_MigrateCreateTableSqlScript_ColumnsHasBeenCreatedWithCorrectConstraints()
+        public void Migrate_MigrateInvalidSqlScript_ThrowsSqlException()
+        {
+            var testDb = new TestDatabase(dbName, Config.ConnectionString);
+            testDb.Create();
+
+            Assert.Throws<SqlException>(() => testDb.Migrate(Config.PathToInvalidScripts));
+
+            testDb.Delete();
+        }
+
+        [Test]
+        public void Migrate_MigrateTwoScripts_ScriptsHasBeenExecutedInOrderOfName()
         {
             
-        }
-
-        [Test]
-        public void Migrate_MigrateInvalidSqlScript_ThrowsInvalidScriptException()
-        {
-            //TODO:: Create InvalidScriptException
         }
 
         [Test]
         public void Delete_CreateDatabaseAndDeleteIt_DatabaseIsDeleted()
         {
-            
+            string result;
+            bool throwsException = false;
+
+            var testDb = new TestDatabase(dbName, Config.ConnectionString);
+            testDb.Create();
+            testDb.Delete();
+
+            using (SqlConnection conn = new SqlConnection(Config.ConnectionString))
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = $"SELECT name FROM sys.databases WHERE Name = '{testDb.DbName}'";
+                    try
+                    {
+                        result = cmd.ExecuteScalar().ToString();
+                    }
+                    catch (Exception e)
+                    {
+                        throwsException = true;
+                    }
+                }
+            }
+
+            Assert.That(throwsException, Is.True);
         }
 
         [Test]
         public void Delete_DeleteDatabaseIsCalledTwice_DatabaseIsDeleted()
         {
-            
+            string result;
+            bool throwsException = false;
+
+            var testDb = new TestDatabase(dbName, Config.ConnectionString);
+            testDb.Create();
+            testDb.Delete();
+            testDb.Delete();
+
+            using (SqlConnection conn = new SqlConnection(Config.ConnectionString))
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = $"SELECT name FROM sys.databases WHERE Name = '{testDb.DbName}'";
+                    try
+                    {
+                        result = cmd.ExecuteScalar().ToString();
+                    }
+                    catch (Exception e)
+                    {
+                        throwsException = true;
+                    }
+                }
+            }
+
+            Assert.That(throwsException, Is.True);
         }
 
+        [Test]
+        public void Dispose_CreateDatabaseWithUsingStatement_DatabaseHasBeenDeletedWhenUsingStatementIsDone()
+        {
+            string result;
+            bool throwsException = false;
+            string testDbName;
+
+            using (var testDb = new TestDatabase(dbName, Config.ConnectionString))
+            {
+                testDb.Create();
+                testDbName = testDb.DbName;
+            }
+
+            using (SqlConnection conn = new SqlConnection(Config.ConnectionString))
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = $"SELECT name FROM sys.databases WHERE Name = '{testDbName}'";
+                    try
+                    {
+                        result = cmd.ExecuteScalar().ToString();
+                    }
+                    catch (Exception e)
+                    {
+                        throwsException = true;
+                    }
+                }
+            }
+
+            Assert.That(throwsException, Is.True);
+        }
     }
 }
