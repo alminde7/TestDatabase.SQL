@@ -21,7 +21,7 @@ namespace TestDatabase.SQL.Test.Integration
         [Test]
         public void Create_CreateADatabase_DatabaseHasBeenCreated()
         {
-            string result;
+            string result = string.Empty;
 
             var testDb = new TestDatabase(dbName, Config.ConnectionString);
             testDb.Create();
@@ -54,7 +54,7 @@ namespace TestDatabase.SQL.Test.Integration
         [Test]
         public void Migrate_MigrateCreateTablesSqlScript_TableHasBeenCreated()
         {
-            string result;
+            string result = string.Empty;
             var testDb = new TestDatabase(dbName, Config.ConnectionString);
             testDb.Create();
             testDb.Migrate(Config.PathToMigrationScripts);
@@ -91,7 +91,7 @@ namespace TestDatabase.SQL.Test.Integration
         public void Migrate_MigrateTwoScripts_ScriptsHasBeenExecutedInOrderOfName()
         {
             //Arrange
-            string result;
+            string result = string.Empty;
             var testDb = new TestDatabase(dbName, Config.ConnectionString);
             testDb.Create();
             //Act
@@ -118,7 +118,7 @@ namespace TestDatabase.SQL.Test.Integration
         [Test]
         public void Delete_CreateDatabaseAndDeleteIt_DatabaseIsDeleted()
         {
-            string result;
+            string result = string.Empty;
             bool throwsException = false;
 
             var testDb = new TestDatabase(dbName, Config.ConnectionString);
