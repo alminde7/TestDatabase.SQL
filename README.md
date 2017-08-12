@@ -6,3 +6,4 @@ This tool only provides an easier way of creating and deleting databases when ru
 ### Getting started
 
 To be continued....
+Test
