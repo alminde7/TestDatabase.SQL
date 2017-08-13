@@ -208,11 +208,5 @@ namespace TestDatabase.SQL.Test.Integration
 
             Assert.That(throwsException, Is.True);
         }
-
-        [Test]
-        public void FailingTest_ForTesting()
-        {
-            Assert.True(false);
-        }
     }
 }
