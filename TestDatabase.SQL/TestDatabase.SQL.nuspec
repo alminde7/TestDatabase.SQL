@@ -2,13 +2,12 @@
 <package >
   <metadata>
     <id>$id$</id>
-    <version>1.0.0.0</version>
+    <version>$version$</version>
     <title>$title$</title>
     <authors>Andreas Alminde</authors>
     <owners>Andreas Alminde</owners>
     <projectUrl>https://github.com/alminde7/TestDatabase.SQL</projectUrl>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Package that creates an SQL database for testing purposes</description>
+    <description>Tool to create a SQL database for testing purposes</description>
     <releaseNotes>Initial release</releaseNotes>
     <copyright>Copyright 2017</copyright>
   </metadata>
